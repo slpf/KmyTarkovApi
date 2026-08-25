@@ -56,14 +56,14 @@ namespace KmyTarkovConfiguration.Models
                 () => acceptableValueCustomList.AcceptableValuesCustom =
                     new[] { "Default" }.Concat(LocalizedHelper.LanguageNames).ToArray();
 
-            var localeManagerClass = Traverse.Create(typeof(LocaleManagerClass)).Property("LocaleManagerClass")
-                .GetValue<LocaleManagerClass>();
+            var localeManagerClass = Traverse.Create(typeof(EFT.LocalizationManager)).Property("Instance")
+                .GetValue<EFT.LocalizationManager>();
 
-            SwitchLanguage(localeManagerClass.String_0);
+            SwitchLanguage(localeManagerClass.Culture);
 
-            KeyLanguage.SettingChanged += (value, value2) => SwitchLanguage(localeManagerClass.String_0);
+            KeyLanguage.SettingChanged += (value, value2) => SwitchLanguage(localeManagerClass.Culture);
 
-            localeManagerClass.AddLocaleUpdateListener(() => SwitchLanguageFromGame(localeManagerClass.String_0));
+            localeManagerClass.AddLocaleUpdateListener(() => SwitchLanguageFromGame(localeManagerClass.Culture));
         }
 
         private void SwitchLanguage(string language)

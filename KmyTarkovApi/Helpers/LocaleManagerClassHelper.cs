@@ -1,8 +1,7 @@
-﻿using System;
+using System;
+using EFT;
 using KmyTarkovReflection;
 
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable NotAccessedField.Global
 
 namespace KmyTarkovApi.Helpers
 {
@@ -13,16 +12,16 @@ namespace KmyTarkovApi.Helpers
 
         public static LocaleManagerClassHelper Instance => Lazy.Value;
 
-        public LocaleManagerClass LocaleManagerClass => RefLocaleManagerClass.GetValue(null);
+        public LocalizationManager LocaleManagerClass => RefLocaleManagerClass.GetValue(null);
 
-        public string CurrentLanguage => LocaleManagerClass.String_0;
+        public string CurrentLanguage => LocaleManagerClass.Culture;
 
-        public readonly RefHelper.PropertyRef<LocaleManagerClass, LocaleManagerClass> RefLocaleManagerClass;
+        public readonly RefHelper.PropertyRef<LocalizationManager, LocalizationManager> RefLocaleManagerClass;
 
         private LocaleManagerClassHelper()
         {
             RefLocaleManagerClass =
-                RefHelper.PropertyRef<LocaleManagerClass, LocaleManagerClass>.Create("LocaleManagerClass");
+                RefHelper.PropertyRef<LocalizationManager, LocalizationManager>.Create("Instance");
         }
     }
 }

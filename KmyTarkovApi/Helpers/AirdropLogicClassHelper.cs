@@ -1,10 +1,8 @@
-﻿using System;
+using System;
 using System.Reflection.Emit;
+using EFT.Airdrop;
 using KmyTarkovReflection;
 
-// ReSharper disable MemberHidesStaticFromOuterClass
-// ReSharper disable NotAccessedField.Global
-// ReSharper disable UnusedMember.Global
 
 namespace KmyTarkovApi.Helpers
 {
@@ -19,7 +17,7 @@ namespace KmyTarkovApi.Helpers
 
         private AirdropLogicClassHelper()
         {
-            var airdropLogicClassType = typeof(AirdropLogicClass);
+            var airdropLogicClassType = typeof(ClientAirDrop);
 
             RaycastGround = RefHelper.HookRef.Create(airdropLogicClassType, x => x
                 .ReadMethodBody().ContainsIL(OpCodes.Ldstr,

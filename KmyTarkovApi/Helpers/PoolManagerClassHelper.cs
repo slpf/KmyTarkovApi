@@ -1,10 +1,11 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Diz.Jobs;
 using EFT;
 using KmyTarkovReflection;
 
-// ReSharper disable UnusedMember.Global
 
 namespace KmyTarkovApi.Helpers
 {
@@ -17,25 +18,31 @@ namespace KmyTarkovApi.Helpers
 
         public static JobPriorityData JobPriorityHelper => JobPriorityData.Instance;
 
-        public PoolManagerClass PoolManagerClass { get; private set; }
+        public ObjectsFactory PoolManagerClass { get; private set; }
 
         public readonly RefHelper.HookRef Constructor;
 
         private readonly
-            Func<PoolManagerClass, PoolManagerClass.PoolsCategory, PoolManagerClass.AssemblyType, ResourceKey[], object,
-                IProgress<LoadingProgressStruct>,
+            Func<ObjectsFactory, ObjectsFactory.PoolsCategory, ObjectsFactory.AssemblyType, ICollection<ResourceKey>,
+                YieldDelegate, IProgress<InitLevelProgress>,
                 CancellationToken, Task> _refLoadBundlesAndCreatePools;
 
         private PoolManagerClassHelper()
         {
-            var poolManagerClassType = typeof(PoolManagerClass);
+            var poolManagerClassType = typeof(ObjectsFactory);
 
             _refLoadBundlesAndCreatePools = RefHelper
-                .ObjectMethodDelegate<Func<PoolManagerClass, PoolManagerClass.PoolsCategory,
-                    PoolManagerClass.AssemblyType, ResourceKey
-                    [], object, IProgress<LoadingProgressStruct>,
+                .ObjectMethodDelegate<Func<ObjectsFactory, ObjectsFactory.PoolsCategory,
+                    ObjectsFactory.AssemblyType, ICollection<ResourceKey>,
+                    YieldDelegate, IProgress<InitLevelProgress>,
                     CancellationToken, Task>>(poolManagerClassType.GetMethod("LoadBundlesAndCreatePools",
-                    RefTool.Public));
+                    RefTool.Public, null,
+                    new[]
+                    {
+                        typeof(ObjectsFactory.PoolsCategory), typeof(ObjectsFactory.AssemblyType),
+                        typeof(ICollection<ResourceKey>), typeof(YieldDelegate),
+                        typeof(IProgress<InitLevelProgress>), typeof(CancellationToken)
+                    }, null));
 
             Constructor = RefHelper.HookRef.Create(poolManagerClassType.GetConstructors()[0]);
         }
@@ -46,14 +53,14 @@ namespace KmyTarkovApi.Helpers
             Constructor.Add(this, nameof(OnConstructor));
         }
 
-        private static void OnConstructor(PoolManagerClass __instance)
+        private static void OnConstructor(ObjectsFactory __instance)
         {
             Instance.PoolManagerClass = __instance;
         }
 
-        public Task LoadBundlesAndCreatePools(PoolManagerClass instance, PoolManagerClass.PoolsCategory poolsCategory,
-            PoolManagerClass.AssemblyType assemblyType, ResourceKey[] resources, object yield,
-            IProgress<LoadingProgressStruct> progress = null,
+        public Task LoadBundlesAndCreatePools(ObjectsFactory instance, ObjectsFactory.PoolsCategory poolsCategory,
+            ObjectsFactory.AssemblyType assemblyType, ICollection<ResourceKey> resources, YieldDelegate yield,
+            IProgress<InitLevelProgress> progress = null,
             CancellationToken ct = default)
         {
             return _refLoadBundlesAndCreatePools(instance, poolsCategory, assemblyType, resources, yield, progress, ct);
@@ -72,17 +79,17 @@ namespace KmyTarkovApi.Helpers
 
             public object Immediate => RefImmediate.GetValue(null);
 
-            public readonly RefHelper.PropertyRef<JobPriorityClass, object> RefGeneral;
+            public readonly RefHelper.PropertyRef<object, object> RefGeneral;
 
-            public readonly RefHelper.PropertyRef<JobPriorityClass, object> RefLow;
+            public readonly RefHelper.PropertyRef<object, object> RefLow;
 
-            public readonly RefHelper.PropertyRef<JobPriorityClass, object> RefImmediate;
+            public readonly RefHelper.PropertyRef<object, object> RefImmediate;
 
             private JobPriorityData()
             {
-                RefGeneral = RefHelper.PropertyRef<JobPriorityClass, object>.Create("General");
-                RefLow = RefHelper.PropertyRef<JobPriorityClass, object>.Create("Low");
-                RefImmediate = RefHelper.PropertyRef<JobPriorityClass, object>.Create("Immediate");
+                RefGeneral = RefHelper.PropertyRef<object, object>.Create(typeof(JobYieldPriority), "General");
+                RefLow = RefHelper.PropertyRef<object, object>.Create(typeof(JobYieldPriority), "Low");
+                RefImmediate = RefHelper.PropertyRef<object, object>.Create(typeof(JobYieldPriority), "Immediate");
             }
         }
     }
